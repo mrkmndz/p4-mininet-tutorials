@@ -110,7 +110,7 @@ parser MyParser(packet_in packet,
 
     state parse_ipv4_option {
         packet.extract(hdr.ipv4_option);
-        transition select(hdr.ipv4_option) {
+        transition select(hdr.ipv4_option.option) {
             IPV4_OPTION_MRI : parse_mri;
             default         : accept;
         }
@@ -127,7 +127,7 @@ parser MyParser(packet_in packet,
 
     state parse_swtrace {
         packet.extract(hdr.swtraces.next);
-        meta.parser_metadata.remaining -= 1;
+        meta.parser_metadata.remaining = meta.parser_metadata.remaining - 1;
         transition select(meta.parser_metadata.remaining) {
             0 : accept;
             default : parse_swtrace;
@@ -191,13 +191,13 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     action add_swtrace(switchID_t swid) { 
-        hdr.mri.count += 1;
+        hdr.mri.count = hdr.mri.count + 1;
         hdr.swtraces.push_front(1);
         hdr.swtraces[0].swid = swid;
         hdr.swtraces[0].qdepth = (qdepth_t)standard_metadata.deq_qdepth;
-        hdr.ipv4.ihl += 2;
-        hdr.ipv4.totalLen += 8;
-        hdr.ipv4_option.optionLength += 8;
+        hdr.ipv4.ihl = hdr.ipv4.ihl + 2;
+        hdr.ipv4.totalLen = hdr.ipv4.totalLen + 8;
+        hdr.ipv4_option.optionLength = hdr.ipv4_option.optionLength + 8;
     }
 
     table swtrace {
