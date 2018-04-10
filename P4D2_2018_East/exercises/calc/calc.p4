@@ -143,35 +143,32 @@ control MyIngress(inout headers hdr,
                   inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
     action send_back(bit<32> result) {
-        /* TODO
-         * - put the result back in hdr.p4calc.res
-         * - swap MAC addresses in hdr.ethernet.dstAddr and
-         *   hdr.ethernet.srcAddr using a temp variable
-         * - Send the packet back to the port it came from
-             by saving standard_metadata.ingress_port into
-             standard_metadata.egress_spec
-         */ 
+        hdr.p4calc.res = result;
+        bit<48> tmp;
+        tmp = hdr.ethernet.dstAddr;
+        hdr.ethernet.dstAddr = hdr.ethernet.srcAddr;
+        hdr.ethernet.srcAddr = tmp;
+        standard_metadata.egress_spec = standard_metadata.ingress_port;
     }
     
     action operation_add() {
-        hdr.p4calc.res = hdr.p4calc.operand_a + hdr.p4calc.operand_b;
+        send_back(hdr.p4calc.operand_a + hdr.p4calc.operand_b);
     }
     
     action operation_sub() {
-        hdr.p4calc.res = hdr.p4calc.operand_a - hdr.p4calc.operand_b;
-        /* TODO call send_back with operand_a - operand_b */
+        send_back(hdr.p4calc.operand_a - hdr.p4calc.operand_b);
     }
     
     action operation_and() {
-        hdr.p4calc.res = hdr.p4calc.operand_a & hdr.p4calc.operand_b;
+        send_back(hdr.p4calc.operand_a & hdr.p4calc.operand_b);
     }
     
     action operation_or() {
-        hdr.p4calc.res = hdr.p4calc.operand_a | hdr.p4calc.operand_b;
+        send_back(hdr.p4calc.operand_a | hdr.p4calc.operand_b);
     }
 
     action operation_xor() {
-        hdr.p4calc.res = hdr.p4calc.operand_a ^ hdr.p4calc.operand_b;
+        send_back(hdr.p4calc.operand_a ^ hdr.p4calc.operand_b);
     }
 
     action operation_drop() {
