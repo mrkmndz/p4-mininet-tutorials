@@ -72,9 +72,9 @@ header p4calc_t {
     bit<8> four;
     bit<8> ver;
     bit<8>  op;
-    bit<16> operand_a;
-    bit<16> operand_b;
-    bit<16> res;
+    bit<32> operand_a;
+    bit<32> operand_b;
+    bit<32> res;
 }
 
 /*
